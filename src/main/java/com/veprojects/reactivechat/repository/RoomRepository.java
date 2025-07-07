@@ -16,7 +16,7 @@ public class RoomRepository {
     private DatabaseClient databaseClient;
 
     public Mono<Room> createRoom(Room room){
-        return databaseClient.sql("insert into rooms values(?,?)")
+        return databaseClient.sql("insert into rooms(name,created_by) values(?,?)")
                 .bind(0,room.getName())
                 .bind(1,room.getCreatedBy().getId())
                 .filter(statement -> statement.returnGeneratedValues("id"))

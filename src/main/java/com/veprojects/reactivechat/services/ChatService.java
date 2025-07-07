@@ -36,12 +36,7 @@ public class ChatService {
         return messageRepository.getMessagesOfRoom(roomId,page,size);
     }
 
-    public Mono<Room> createRoom(Long creatorId, String roomName) {
-        User user=new User();
-        user.setId(creatorId);
-        Room room = new Room();
-        room.setName(roomName);
-        room.setCreatedBy(user);
+    public Mono<Room> createRoom(Room room) {
         return roomRepository.createRoom(room);
     }
 }

@@ -1,11 +1,11 @@
-package com.veprojects.reactivechat.controllers;
+package com.veprojects.reactivechat.entities;
 
 public class Response {
 
     private String message;
     private Object content;
 
-    public Response(String message,String content){
+    public Response(String message,Object content){
         this.message=message;
         this.content=content;
     }

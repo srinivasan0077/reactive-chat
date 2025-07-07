@@ -42,7 +42,7 @@ public class UserRepository {
 
     public Mono<User> insertUser(Connection connection,User user) {
         return Mono.from(
-                        connection.createStatement("INSERT INTO users(name, password,role) VALUES (?,?,?)")
+                        connection.createStatement("INSERT INTO users(username,password,role) VALUES (?,?,?)")
                                 .bind(0, user.getUsername())
                                 .bind(1, passwordEncoder.encode(user.getPassword()))
                                 .bind(2,user.getRole())
@@ -56,12 +56,12 @@ public class UserRepository {
     }
 
     public Mono<User> loadUserByName(String name){
-        return databaseClient.sql("SELECT * FROM users where name=:name limit 1")
+        return databaseClient.sql("SELECT * FROM users where username=:name limit 1")
                 .bind("name", name)
                 .map((row,meta)->{
                     User user=new User();
                     user.setId(row.get("id",Long.class));
-                    user.setUsername(row.get("name",String.class));
+                    user.setUsername(row.get("username",String.class));
                     user.setPassword(row.get("password",String.class));
                     user.setRole(row.get("role",String.class));
                     return user;

@@ -10,23 +10,26 @@ public class Room {
         return id;
     }
 
-    public void setId(Long id) {
+    public Room setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public User getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public Room setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Room setName(String name) {
         this.name = name;
+        return this;
     }
 }

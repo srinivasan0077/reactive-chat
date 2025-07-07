@@ -8,9 +8,13 @@ import reactor.core.publisher.Sinks;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class MessageBroadCaster {
+
+    private static final Logger log=Logger.getLogger(MessageBroadCaster.class.getName());
 
     private static class RoomSink {
         final Sinks.Many<Message> sink;
@@ -42,7 +46,12 @@ public class MessageBroadCaster {
         });
 
         return roomSink.sink.asFlux()
-                .doFinally(signal -> handleUnsubscribe(roomId));
+                .doFinally(signal -> handleUnsubscribe(roomId))
+                .doOnSubscribe(sub -> log.info("Subscribed to room " + roomId))
+                .doOnNext(msg -> log.info("Emit message to client: " + msg))
+                .doOnComplete(() -> log.info("Sink COMPLETED for room " + roomId))
+                .doOnError(err -> log.log(Level.SEVERE,"Sink ERROR for room " + roomId, err))
+                .doFinally(sig -> log.info("Sink finally signal: " + sig));
     }
 
     private void handleUnsubscribe(Long roomId) {

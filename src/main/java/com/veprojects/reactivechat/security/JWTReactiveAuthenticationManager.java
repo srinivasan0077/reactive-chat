@@ -1,5 +1,6 @@
 package com.veprojects.reactivechat.security;
 
+import com.veprojects.reactivechat.entities.User;
 import com.veprojects.reactivechat.services.JWTService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -31,12 +32,12 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
 
         try {
             Claims claims = jwtService.parseToken(token);
-            String username = claims.getSubject();
+            User user=new User().setId(claims.get("id",Long.class)).setUsername(claims.getSubject());
             String role = claims.get("role", String.class);
 
             Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
 
-            return Mono.just(new UsernamePasswordAuthenticationToken(username, null, authorities));
+            return Mono.just(new UsernamePasswordAuthenticationToken(user, null, authorities));
         } catch (JwtException e) {
             return Mono.error(new BadCredentialsException("Invalid JWT token", e));
         }
