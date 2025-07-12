@@ -35,16 +35,22 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         Mono<Authentication> authMono = session.getHandshakeInfo().getPrincipal()
                 .cast(Authentication.class);
 
-        Mono<Void> incoming = session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .flatMap(json -> authMono.flatMap(auth -> handleClientMessage(json, roomId, auth)))
-                .then();
+        Mono<Void> incoming = authMono.flatMapMany(auth ->
+                session.receive()
+                        .map(WebSocketMessage::getPayloadAsText)
+                        .flatMap(json -> handleClientMessage(json, roomId, auth))
+        ).then();
 
         Flux<WebSocketMessage> outgoing = chatService
                 .subscribeToRoom(roomId)
                 .map(msg -> session.textMessage(toJson(msg)));
 
-        return session.send(outgoing).and(incoming);
+        return session.send(outgoing)
+                .and(incoming)
+                .onErrorResume(ex -> {
+                    LOGGER.log(Level.SEVERE, "WebSocket error", ex);
+                    return Mono.empty();
+                });
     }
 
     private Long extractRoomId(WebSocketSession session) {

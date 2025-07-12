@@ -23,7 +23,7 @@ public class MessageRepository {
                 .bind(0,message.getMessage())
                 .bind(1,message.getRoom().getId())
                 .bind(2,message.getSender().getId())
-                .bind(3,new Timestamp(System.currentTimeMillis()))
+                .bind(3,Instant.now())
                 .filter(statement -> statement.returnGeneratedValues("id"))
                 .map((row,meta)->{
                     message.setId(row.get("id",Long.class));
