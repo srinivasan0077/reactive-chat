@@ -5,6 +5,7 @@ import com.veprojects.reactivechat.entities.Message;
 import com.veprojects.reactivechat.entities.Room;
 import com.veprojects.reactivechat.entities.User;
 import com.veprojects.reactivechat.services.ChatService;
+import com.veprojects.reactivechat.services.KafkaReactiveProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,10 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
 
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private KafkaReactiveProducer messageProducer;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -73,7 +78,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
             message.setRoom(new Room().setId(roomId));
             message.setCreatedAt(Instant.now());
             message.setSender(user);
-            return chatService.sendMessage(message).then();
+            return messageProducer.sendMessage(message);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE,"Error while sending message:",e);
         }

@@ -25,7 +25,7 @@ public class MessageBroadCaster {
         }
     }
 
-    private static Map<Long, RoomSink> rooms=new ConcurrentHashMap<>();
+    private static final Map<Long, RoomSink> rooms=new ConcurrentHashMap<>();
 
     public void publishToRoom(Message message){
         RoomSink roomSinkWrapper = rooms.computeIfAbsent(

@@ -4,6 +4,7 @@ import com.veprojects.reactivechat.entities.User;
 import com.veprojects.reactivechat.services.JWTService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,12 +20,9 @@ import java.util.List;
 @Component
 public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
-    private final JWTService jwtService;
-
-    public JWTReactiveAuthenticationManager(JWTService jwtService){
-        this.jwtService=jwtService;
-    }
-
+    @Autowired
+    private JWTService jwtService;
+    
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
 

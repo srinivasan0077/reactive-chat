@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app1
+      - app2
+      - app3
+    networks:
+      - springnet
+
+  app1:
+    image: webflux-chat-app
+    container_name: app1
+    environment:
+      - SERVER_PORT=8081
+      - JAVA_TOOL_OPTIONS=-Dinstance.id=1
+    networks:
+      - springnet
+    depends_on:
+      - kafka1
+      - kafka2
+
+  app2:
+    image: webflux-chat-app
+    container_name: app2
+    environment:
+      - SERVER_PORT=8082
+      - JAVA_TOOL_OPTIONS=-Dinstance.id=2
+    networks:
+      - springnet
+    depends_on:
+      - kafka1
+      - kafka2
+
+  app3:
+    image: webflux-chat-app
+    container_name: app3
+    environment:
+      - SERVER_PORT=8083
+      - JAVA_TOOL_OPTIONS=-Dinstance.id=3
+    networks:
+      - springnet
+    depends_on:
+      - kafka1
+      - kafka2
+
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - springnet
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: 5
+    networks:
+      - springnet
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: 5
+    networks:
+      - springnet
+
+networks:
+  springnet:
+    driver: bridge
